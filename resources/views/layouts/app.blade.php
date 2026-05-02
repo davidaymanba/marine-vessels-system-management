@@ -90,7 +90,8 @@
                         </div>
                     @endif
 
-                    {{ $slot }}
+                    {!! $slot ?? '' !!}
+                    @yield('content')
                 </main>
             </div>
         </div>
