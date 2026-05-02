@@ -1,3 +1,4 @@
+<x-guest-layout>
 <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">إنشاء حساب جديد</h2>
 <p class="text-center text-gray-600 text-sm mb-8">انضم إلينا الآن وابدأ إدارة الوسائل البحرية</p>
 
@@ -124,3 +125,4 @@
         }
     }
 </script>
+</x-guest-layout>

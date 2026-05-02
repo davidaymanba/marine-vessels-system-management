@@ -1,3 +1,4 @@
+<x-guest-layout>
 <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">استعادة كلمة المرور</h2>
 <p class="text-center text-gray-600 text-sm mb-8">لا تقلق! أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين</p>
 
@@ -43,3 +44,4 @@
         ← العودة لصفحة الدخول
     </a>
 </div>
+</x-guest-layout>

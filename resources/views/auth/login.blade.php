@@ -1,3 +1,4 @@
+<x-guest-layout>
 <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">تسجيل الدخول</h2>
 <p class="text-center text-gray-600 text-sm mb-8">أدخل بيانات حسابك للدخول للنظام</p>
 
@@ -120,3 +121,4 @@
         });
     }
 </script>
+</x-guest-layout>
