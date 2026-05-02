@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Tajawal', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    min-height: 100vh;
+}
+
+/* Auth Pages Animations */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+}
+
+/* Custom Components */
+.auth-container {
+    @apply min-h-screen flex items-center justify-center relative overflow-hidden;
+    /* removed - using body gradient instead */
+}
+
+.auth-wrapper {
+    @apply w-full max-w-md px-5 relative z-10;
+    animation: slideUp 0.8s ease-out;
+}
+
+.form-input {
+    @apply w-full px-4 py-3 text-sm border-2 border-gray-200 rounded-xl transition-all;
+    background: #f9fafb;
+    font-family: 'Tajawal', sans-serif;
+}
+
+.form-input:focus {
+    @apply outline-none bg-white border-purple-500;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
