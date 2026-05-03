@@ -28,6 +28,7 @@
                 <label class="block text-sm font-medium mb-2">الدور</label>
                 <select name="role" class="w-full rounded-xl border-slate-300 px-4 py-3">
                     <option value="operator" @selected($user->role === 'operator')>operator</option>
+                    <option value="supervisor" @selected($user->role === 'supervisor')>supervisor</option>
                     <option value="admin" @selected($user->role === 'admin')>admin</option>
                 </select>
             </div>

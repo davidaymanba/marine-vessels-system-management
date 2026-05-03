@@ -17,43 +17,43 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard')
-        ->middleware('role:admin,operator');
+        ->middleware('role:admin,operator,supervisor');
 
     Route::get('/live-dashboard', [\App\Http\Controllers\LiveDashboardController::class, 'index'])
         ->name('live-dashboard')
-        ->middleware('role:admin,operator');
+        ->middleware('role:admin,operator,supervisor');
 
     Route::get('/api/live-dashboard', [\App\Http\Controllers\LiveDashboardController::class, 'getLiveData'])
         ->name('live-dashboard.api')
-        ->middleware('role:admin,operator');
+        ->middleware('role:admin,operator,supervisor');
 
     Route::get('/api/live-movements', [\App\Http\Controllers\LiveDashboardController::class, 'getMovementUpdates'])
         ->name('live-dashboard.movements')
-        ->middleware('role:admin,operator');
+        ->middleware('role:admin,operator,supervisor');
 
     Route::get('/vessels', [VesselController::class, 'index'])
         ->name('vessels.index')
-        ->middleware('role:admin,operator');
+        ->middleware('role:admin,operator,supervisor');
 
     Route::get('/vessels/create', [VesselController::class, 'create'])
         ->name('vessels.create')
-        ->middleware('role:admin,operator');
+        ->middleware('role:admin,operator,supervisor');
 
     Route::post('/vessels', [VesselController::class, 'store'])
         ->name('vessels.store')
-        ->middleware('role:admin,operator');
+        ->middleware('role:admin,operator,supervisor');
 
     Route::get('/movements/checkout', [MovementController::class, 'checkoutForm'])
         ->name('movements.checkout')
-        ->middleware('role:admin,operator');
+        ->middleware('role:admin,operator,supervisor');
 
     Route::post('/movements/checkout', [MovementController::class, 'checkout'])
         ->name('movements.checkout.store')
-        ->middleware('role:admin,operator');
+        ->middleware('role:admin,operator,supervisor');
 
     Route::get('/movements/scan', [MovementController::class, 'scanPage'])
         ->name('movements.scan')
-        ->middleware('role:admin,operator');
+        ->middleware('role:admin,operator,supervisor');
 
     Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications.index');
@@ -66,22 +66,28 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/movements/checkin', [MovementController::class, 'checkinByScan'])
         ->name('movements.checkin')
-        ->middleware('role:admin,operator');
+        ->middleware('role:admin,operator,supervisor');
 
     Route::get('/vessels/{vessel}', [VesselController::class, 'show'])
         ->name('vessels.show')
-        ->middleware('role:admin,operator');
+        ->middleware('role:admin,operator,supervisor');
 
     Route::get('/vessels/{vessel}/edit', [VesselController::class, 'edit'])
         ->name('vessels.edit')
-        ->middleware('role:admin,operator');
+        ->middleware('role:admin,operator,supervisor');
 
-    Route::middleware('role:admin,operator')->group(function () {
+    Route::middleware('role:admin,operator,supervisor')->group(function () {
         Route::get('/vessels/{vessel}/barcode', [VesselController::class, 'printBarcode'])
             ->name('vessels.barcode');
 
         Route::put('/vessels/{vessel}', [VesselController::class, 'update'])
             ->name('vessels.update');
+
+        Route::patch('/vessels/{vessel}/archive', [VesselController::class, 'archive'])
+            ->name('vessels.archive');
+
+        Route::patch('/vessels/{vessel}/restore', [VesselController::class, 'restore'])
+            ->name('vessels.restore');
 
         Route::delete('/vessels/{vessel}', [VesselController::class, 'destroy'])
             ->name('vessels.destroy');

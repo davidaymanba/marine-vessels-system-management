@@ -12,8 +12,12 @@ class LiveDashboardController extends Controller
 {
     public function index()
     {
-        $activeVessels = Vessel::where('status', 'inside')->count();
-        $outsideVessels = Vessel::where('status', 'outside')->count();
+        $activeVessels = Vessel::active()->where('status', 'inside')->count();
+        $outsideVessels = Vessel::active()->where('status', 'outside')->count();
+        $archivedVessels = Vessel::archived()->count();
+        $operationalVessels = Vessel::active()->where('maintenance_status', 'operational')->count();
+        $maintenanceVessels = Vessel::active()->where('maintenance_status', 'maintenance')->count();
+        $outOfServiceVessels = Vessel::active()->where('maintenance_status', 'out_of_service')->count();
         $recentMovements = Movement::with(['vessel', 'exit', 'user'])
             ->where('moved_at', '>=', Carbon::now()->subHours(1))
             ->orderByDesc('moved_at')
@@ -23,15 +27,23 @@ class LiveDashboardController extends Controller
         return view('live-dashboard', [
             'activeVessels' => $activeVessels,
             'outsideVessels' => $outsideVessels,
+            'archivedVessels' => $archivedVessels,
+            'operationalVessels' => $operationalVessels,
+            'maintenanceVessels' => $maintenanceVessels,
+            'outOfServiceVessels' => $outOfServiceVessels,
             'recentMovements' => $recentMovements,
         ]);
     }
 
     public function getLiveData(): JsonResponse
     {
-        $activeVessels = Vessel::where('status', 'inside')->count();
-        $outsideVessels = Vessel::where('status', 'outside')->count();
-        $totalVessels = Vessel::count();
+        $activeVessels = Vessel::active()->where('status', 'inside')->count();
+        $outsideVessels = Vessel::active()->where('status', 'outside')->count();
+        $totalVessels = Vessel::active()->count();
+        $archivedVessels = Vessel::archived()->count();
+        $operationalVessels = Vessel::active()->where('maintenance_status', 'operational')->count();
+        $maintenanceVessels = Vessel::active()->where('maintenance_status', 'maintenance')->count();
+        $outOfServiceVessels = Vessel::active()->where('maintenance_status', 'out_of_service')->count();
 
         // آخر الحركات
         $recentMovements = Movement::with(['vessel', 'exit', 'user'])
@@ -53,7 +65,7 @@ class LiveDashboardController extends Controller
             });
 
         // الوسائل النشطة (مع أحدث حركة)
-        $activeVesselsList = Vessel::with('latestMovement')
+        $activeVesselsList = Vessel::active()->with('latestMovement')
             ->where('status', 'inside')
             ->limit(10)
             ->get()
@@ -100,6 +112,10 @@ class LiveDashboardController extends Controller
             'activeVessels' => $activeVessels,
             'outsideVessels' => $outsideVessels,
             'totalVessels' => $totalVessels,
+            'archivedVessels' => $archivedVessels,
+            'operationalVessels' => $operationalVessels,
+            'maintenanceVessels' => $maintenanceVessels,
+            'outOfServiceVessels' => $outOfServiceVessels,
             'occupancyRate' => $totalVessels > 0 ? round(($activeVessels / $totalVessels) * 100, 1) : 0,
             'recentMovements' => $recentMovements,
             'activeVesselsList' => $activeVesselsList,

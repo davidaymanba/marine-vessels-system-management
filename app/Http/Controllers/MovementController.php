@@ -52,7 +52,11 @@ class MovementController extends Controller
 
     public function checkoutForm()
     {
-        $vessels = Vessel::inside()->orderBy('name')->get();
+        $vessels = Vessel::active()
+            ->inside()
+            ->where('maintenance_status', 'operational')
+            ->orderBy('name')
+            ->get();
         $exits = ExitGate::where('is_active', true)->orderBy('name')->get();
 
         return view('movements.checkout', compact('vessels', 'exits'));
@@ -68,6 +72,18 @@ class MovementController extends Controller
 
         DB::transaction(function () use ($validated) {
             $vessel = Vessel::lockForUpdate()->findOrFail($validated['vessel_id']);
+
+            if ($vessel->archived_at) {
+                throw ValidationException::withMessages([
+                    'vessel_id' => 'لا يمكن تسجيل حركة على وسيلة مؤرشفة.',
+                ]);
+            }
+
+            if ($vessel->maintenance_status !== 'operational') {
+                throw ValidationException::withMessages([
+                    'vessel_id' => 'لا يمكن تسجيل حركة على وسيلة غير تشغيلية.',
+                ]);
+            }
 
             if ($vessel->status === 'outside') {
                 throw ValidationException::withMessages([
@@ -113,8 +129,11 @@ class MovementController extends Controller
 
         $barcode = trim($validated['barcode']);
 
-        $vessel = Vessel::where('barcode', $barcode)
-            ->orWhere('vessel_number', $barcode)
+        $vessel = Vessel::active()
+            ->where(function ($query) use ($barcode) {
+                $query->where('barcode', $barcode)
+                    ->orWhere('vessel_number', $barcode);
+            })
             ->first();
 
         if (!$vessel) {
@@ -126,6 +145,12 @@ class MovementController extends Controller
 
         DB::transaction(function () use ($vessel) {
             $vessel->refresh();
+
+            if ($vessel->maintenance_status !== 'operational') {
+                throw ValidationException::withMessages([
+                    'barcode' => 'لا يمكن تسجيل الحركة على وسيلة غير تشغيلية.',
+                ]);
+            }
 
             if ($vessel->status === 'inside') {
                 throw ValidationException::withMessages([

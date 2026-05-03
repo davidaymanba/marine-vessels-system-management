@@ -14,11 +14,47 @@
                 <div class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $vessel->status === 'inside' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">
                     {{ $vessel->status === 'inside' ? 'داخل' : 'خارج' }}
                 </div>
+                <div class="text-sm text-slate-500 pt-2">الصيانة</div>
+                <div class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $vessel->maintenance_status === 'operational' ? 'bg-emerald-100 text-emerald-700' : ($vessel->maintenance_status === 'maintenance' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700') }}">
+                    {{ $vessel->maintenance_status === 'operational' ? 'تشغيلية' : ($vessel->maintenance_status === 'maintenance' ? 'في الصيانة' : 'خارج الخدمة') }}
+                </div>
+                @if($vessel->isArchived())
+                    <div class="inline-flex rounded-full px-3 py-1 text-xs font-semibold bg-slate-200 text-slate-700">مؤرشفة</div>
+                @endif
                 <div class="text-sm text-slate-500 pt-2">الباركود</div>
                 <div class="font-mono text-sm break-all">{{ $vessel->barcode }}</div>
+                @if($vessel->vessel_type)
+                    <div class="text-sm text-slate-500 pt-2">نوع الوسيلة</div>
+                    <div class="text-sm text-slate-700">{{ $vessel->vessel_type }}</div>
+                @endif
+                @if($vessel->owner_name)
+                    <div class="text-sm text-slate-500 pt-2">المالك</div>
+                    <div class="text-sm text-slate-700">{{ $vessel->owner_name }}</div>
+                @endif
+                @if($vessel->capacity)
+                    <div class="text-sm text-slate-500 pt-2">السعة</div>
+                    <div class="text-sm text-slate-700">{{ $vessel->capacity }}</div>
+                @endif
                 @if($vessel->description)
                     <div class="pt-2 text-sm text-slate-600">{{ $vessel->description }}</div>
                 @endif
+                <div class="pt-4 flex flex-wrap gap-2">
+                    <a href="{{ route('vessels.barcode', $vessel) }}" class="rounded-xl bg-slate-900 px-4 py-2 text-sm text-white">طباعة الباركود</a>
+                    <a href="{{ route('vessels.edit', $vessel) }}" class="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-700">تعديل</a>
+                    @if($vessel->isArchived())
+                        <form method="POST" action="{{ route('vessels.restore', $vessel) }}">
+                            @csrf
+                            @method('PATCH')
+                            <button class="rounded-xl bg-emerald-600 px-4 py-2 text-sm text-white">استعادة</button>
+                        </form>
+                    @else
+                        <form method="POST" action="{{ route('vessels.archive', $vessel) }}">
+                            @csrf
+                            @method('PATCH')
+                            <button class="rounded-xl bg-amber-600 px-4 py-2 text-sm text-white">أرشفة</button>
+                        </form>
+                    @endif
+                </div>
             </div>
 
             <div class="rounded-2xl bg-white shadow-sm border border-slate-200 overflow-hidden xl:col-span-2">

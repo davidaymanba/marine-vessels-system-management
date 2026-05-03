@@ -15,7 +15,7 @@
     </div>
 
     <!-- Live Metrics -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4" x-data="liveData()" x-init="init()">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         <!-- Active Vessels -->
         <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
@@ -59,6 +59,46 @@
                     </p>
                 </div>
                 <div class="text-5xl opacity-30">📦</div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-slate-600 to-slate-700 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm opacity-90">المؤرشفة</p>
+                    <p class="text-4xl font-bold mt-2" x-text="archivedVessels || 0">-</p>
+                </div>
+                <div class="text-5xl opacity-30">🗄️</div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm opacity-90">التشغيلية</p>
+                    <p class="text-4xl font-bold mt-2" x-text="operationalVessels || 0">-</p>
+                </div>
+                <div class="text-5xl opacity-30">✅</div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm opacity-90">في الصيانة</p>
+                    <p class="text-4xl font-bold mt-2" x-text="maintenanceVessels || 0">-</p>
+                </div>
+                <div class="text-5xl opacity-30">🛠️</div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-rose-500 to-rose-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm opacity-90">خارج الخدمة</p>
+                    <p class="text-4xl font-bold mt-2" x-text="outOfServiceVessels || 0">-</p>
+                </div>
+                <div class="text-5xl opacity-30">⛔</div>
             </div>
         </div>
     </div>
@@ -203,6 +243,10 @@
             activeVessels: 0,
             outsideVessels: 0,
             totalVessels: 0,
+            archivedVessels: 0,
+            operationalVessels: 0,
+            maintenanceVessels: 0,
+            outOfServiceVessels: 0,
             occupancyRate: 0,
             recentMovements: [],
             activeVesselsList: [],
@@ -228,6 +272,10 @@
                     this.activeVessels = data.activeVessels;
                     this.outsideVessels = data.outsideVessels;
                     this.totalVessels = data.totalVessels;
+                    this.archivedVessels = data.archivedVessels;
+                    this.operationalVessels = data.operationalVessels;
+                    this.maintenanceVessels = data.maintenanceVessels;
+                    this.outOfServiceVessels = data.outOfServiceVessels;
                     this.occupancyRate = data.occupancyRate;
                     this.recentMovements = data.recentMovements;
                     this.activeVesselsList = data.activeVesselsList;

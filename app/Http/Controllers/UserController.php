@@ -39,7 +39,7 @@ class UserController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'max:20', 'unique:users,phone'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
-            'role' => ['required', 'in:admin,operator'],
+            'role' => ['required', 'in:admin,operator,supervisor'],
         ]);
 
         $user = User::create([
@@ -92,7 +92,7 @@ class UserController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'phone' => ['nullable', 'string', 'max:20', 'unique:users,phone,' . $user->id],
             'password' => ['nullable', 'string', 'min:6', 'confirmed'],
-            'role' => ['required', 'in:admin,operator'],
+            'role' => ['required', 'in:admin,operator,supervisor'],
         ]);
 
         $user->fill([

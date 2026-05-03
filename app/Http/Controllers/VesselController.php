@@ -17,16 +17,28 @@ class VesselController extends Controller
     public function index()
     {
         $status = request('status');
+        $maintenanceStatus = request('maintenance_status');
+        $archived = request()->boolean('archived');
 
         $query = Vessel::query()->orderBy('name');
+
+        if (!$archived) {
+            $query->active();
+        } else {
+            $query->archived();
+        }
 
         if (in_array($status, ['inside', 'outside'], true)) {
             $query->where('status', $status);
         }
 
+        if (in_array($maintenanceStatus, ['operational', 'maintenance', 'out_of_service'], true)) {
+            $query->where('maintenance_status', $maintenanceStatus);
+        }
+
         $vessels = $query->paginate(15)->withQueryString();
 
-        return view('vessels.index', compact('vessels', 'status'));
+        return view('vessels.index', compact('vessels', 'status', 'maintenanceStatus', 'archived'));
     }
 
     /**
@@ -45,6 +57,10 @@ class VesselController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'vessel_number' => ['required', 'string', 'max:50', 'unique:vessels,vessel_number'],
+            'vessel_type' => ['nullable', 'string', 'max:100'],
+            'owner_name' => ['nullable', 'string', 'max:255'],
+            'capacity' => ['nullable', 'integer', 'min:1'],
+            'maintenance_status' => ['required', 'in:operational,maintenance,out_of_service'],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'max:2048'],
         ]);
@@ -57,6 +73,10 @@ class VesselController extends Controller
         $vessel = Vessel::create([
             'name' => $validated['name'],
             'vessel_number' => $validated['vessel_number'],
+            'vessel_type' => $validated['vessel_type'] ?? null,
+            'owner_name' => $validated['owner_name'] ?? null,
+            'capacity' => $validated['capacity'] ?? null,
+            'maintenance_status' => $validated['maintenance_status'],
             'barcode' => (string) Str::uuid(),
             'status' => 'inside',
             'description' => $validated['description'] ?? null,
@@ -104,6 +124,10 @@ class VesselController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'vessel_number' => ['required', 'string', 'max:50', 'unique:vessels,vessel_number,' . $vessel->id],
+            'vessel_type' => ['nullable', 'string', 'max:100'],
+            'owner_name' => ['nullable', 'string', 'max:255'],
+            'capacity' => ['nullable', 'integer', 'min:1'],
+            'maintenance_status' => ['required', 'in:operational,maintenance,out_of_service'],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'max:2048'],
         ]);
@@ -117,6 +141,10 @@ class VesselController extends Controller
         $vessel->fill([
             'name' => $validated['name'],
             'vessel_number' => $validated['vessel_number'],
+            'vessel_type' => $validated['vessel_type'] ?? null,
+            'owner_name' => $validated['owner_name'] ?? null,
+            'capacity' => $validated['capacity'] ?? null,
+            'maintenance_status' => $validated['maintenance_status'],
             'description' => $validated['description'] ?? null,
         ])->save();
 
@@ -146,6 +174,36 @@ class VesselController extends Controller
         return redirect()
             ->route('vessels.index')
             ->with('success', 'تم حذف الوسيلة بنجاح.');
+    }
+
+    public function archive(string $id)
+    {
+        $vessel = Vessel::findOrFail($id);
+        $vessel->update(['archived_at' => now()]);
+
+        $this->audit('archived', $vessel, 'تم أرشفة وسيلة بحرية.', [
+            'name' => $vessel->name,
+            'vessel_number' => $vessel->vessel_number,
+        ]);
+
+        return redirect()
+            ->route('vessels.show', $vessel)
+            ->with('success', 'تمت أرشفة الوسيلة بنجاح.');
+    }
+
+    public function restore(string $id)
+    {
+        $vessel = Vessel::findOrFail($id);
+        $vessel->update(['archived_at' => null]);
+
+        $this->audit('restored', $vessel, 'تمت استعادة وسيلة بحرية من الأرشيف.', [
+            'name' => $vessel->name,
+            'vessel_number' => $vessel->vessel_number,
+        ]);
+
+        return redirect()
+            ->route('vessels.show', $vessel)
+            ->with('success', 'تمت استعادة الوسيلة بنجاح.');
     }
 
     public function printBarcode(string $id)

@@ -9,10 +9,19 @@ class Vessel extends Model
     protected $fillable = [
         'name',
         'vessel_number',
+        'vessel_type',
+        'owner_name',
+        'capacity',
+        'maintenance_status',
         'barcode',
         'status',
         'description',
         'image',
+        'archived_at',
+    ];
+
+    protected $casts = [
+        'archived_at' => 'datetime',
     ];
 
     public function movements()
@@ -41,5 +50,20 @@ class Vessel extends Model
     public function scopeOutside($query)
     {
         return $query->where('status', 'outside');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->whereNull('archived_at');
+    }
+
+    public function scopeArchived($query)
+    {
+        return $query->whereNotNull('archived_at');
+    }
+
+    public function isArchived(): bool
+    {
+        return $this->archived_at !== null;
     }
 }

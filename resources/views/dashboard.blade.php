@@ -18,6 +18,22 @@
                 <div class="mt-2 text-3xl font-bold">{{ $latestMovements->count() }}</div>
                 <div class="mt-1 text-sm text-white/80">آخر 10 حركات</div>
             </div>
+            <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+                <div class="text-sm text-slate-500">مؤرشفة</div>
+                <div class="mt-2 text-3xl font-bold text-slate-900">{{ $archivedCount }}</div>
+            </div>
+            <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+                <div class="text-sm text-slate-500">تشغيلية</div>
+                <div class="mt-2 text-3xl font-bold text-emerald-600">{{ $operationalCount }}</div>
+            </div>
+            <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+                <div class="text-sm text-slate-500">في الصيانة</div>
+                <div class="mt-2 text-3xl font-bold text-amber-600">{{ $maintenanceCount }}</div>
+            </div>
+            <div class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+                <div class="text-sm text-slate-500">خارج الخدمة</div>
+                <div class="mt-2 text-3xl font-bold text-rose-600">{{ $outOfServiceCount }}</div>
+            </div>
         </div>
 
         <div class="grid gap-6 xl:grid-cols-3">

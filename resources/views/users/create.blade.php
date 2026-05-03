@@ -27,6 +27,7 @@
                 <label class="block text-sm font-medium mb-2">الدور</label>
                 <select name="role" class="w-full rounded-xl border-slate-300 px-4 py-3">
                     <option value="operator">operator</option>
+                    <option value="supervisor">supervisor</option>
                     <option value="admin">admin</option>
                 </select>
             </div>
