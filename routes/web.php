@@ -68,15 +68,17 @@ Route::middleware('auth')->group(function () {
         ->name('movements.checkin')
         ->middleware('role:admin,operator');
 
-    Route::middleware('role:admin')->group(function () {
+    Route::get('/vessels/{vessel}', [VesselController::class, 'show'])
+        ->name('vessels.show')
+        ->middleware('role:admin,operator');
+
+    Route::get('/vessels/{vessel}/edit', [VesselController::class, 'edit'])
+        ->name('vessels.edit')
+        ->middleware('role:admin,operator');
+
+    Route::middleware('role:admin,operator')->group(function () {
         Route::get('/vessels/{vessel}/barcode', [VesselController::class, 'printBarcode'])
             ->name('vessels.barcode');
-
-        Route::get('/vessels/{vessel}', [VesselController::class, 'show'])
-            ->name('vessels.show');
-
-        Route::get('/vessels/{vessel}/edit', [VesselController::class, 'edit'])
-            ->name('vessels.edit');
 
         Route::put('/vessels/{vessel}', [VesselController::class, 'update'])
             ->name('vessels.update');

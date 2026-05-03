@@ -45,7 +45,7 @@ class LiveDashboardController extends Controller
                     'vessel' => $movement->vessel->name,
                     'type' => $movement->type === 'exit' ? '🚀 خروج' : '📥 دخول',
                     'type_class' => $movement->type === 'exit' ? 'exit' : 'entry',
-                    'exit' => $movement->exit->name,
+                    'exit' => $movement->exit?->name ?? 'بدون مخرج',
                     'operator' => $movement->user->name,
                     'time' => $movement->moved_at->diffForHumans(),
                     'timestamp' => $movement->moved_at->format('H:i:s'),
@@ -70,6 +70,8 @@ class LiveDashboardController extends Controller
 
         // أكثر المخارج استخداماً الآن
         $topExits = Movement::with('exit')
+            ->where('type', 'exit')
+            ->whereNotNull('exit_id')
             ->where('moved_at', '>=', Carbon::now()->subHours(1))
             ->groupBy('exit_id')
             ->selectRaw('exit_id, COUNT(*) as count')
@@ -78,7 +80,7 @@ class LiveDashboardController extends Controller
             ->get()
             ->map(function ($item) {
                 return [
-                    'name' => $item->exit->name,
+                    'name' => $item->exit?->name ?? 'بدون مخرج',
                     'count' => $item->count,
                 ];
             });
@@ -114,15 +116,17 @@ class LiveDashboardController extends Controller
             ->orderByDesc('moved_at')
             ->get()
             ->map(function ($movement) {
+                $exitName = $movement->exit?->name ?? 'بدون مخرج';
+
                 return [
                     'id' => $movement->id,
                     'vessel' => $movement->vessel->name,
                     'type' => $movement->type,
-                    'exit' => $movement->exit->name,
+                    'exit' => $exitName,
                     'operator' => $movement->user->name,
                     'message' => $movement->type === 'exit'
-                        ? "🚀 خروج الوسيلة {$movement->vessel->name} من {$movement->exit->name}"
-                        : "📥 دخول الوسيلة {$movement->vessel->name} إلى {$movement->exit->name}",
+                        ? "🚀 خروج الوسيلة {$movement->vessel->name} من {$exitName}"
+                        : "📥 دخول الوسيلة {$movement->vessel->name}",
                 ];
             });
 

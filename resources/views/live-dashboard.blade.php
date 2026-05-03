@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="liveDashboard()" x-init="init()">
     <!-- Header -->
     <div class="flex justify-between items-center">
         <div>
@@ -64,7 +64,7 @@
     </div>
 
     <!-- Real-time Alerts -->
-    <div x-data="alerts()" class="space-y-3" x-show="notifications.length > 0">
+    <div class="space-y-3" x-show="notifications.length > 0">
         <template x-for="notif in notifications.slice(0, 3)" :key="notif.id">
             <div class="animate-pulse rounded-lg p-4" :class="notif.type === 'exit' ? 'bg-red-100 dark:bg-red-900 border-l-4 border-red-500' : 'bg-green-100 dark:bg-green-900 border-l-4 border-green-500'">
                 <p class="font-semibold" :class="notif.type === 'exit' ? 'text-red-800 dark:text-red-200' : 'text-green-800 dark:text-green-200'">
@@ -84,7 +84,7 @@
                 <span class="text-sm text-gray-500 dark:text-gray-400">تحديث مباشر</span>
             </div>
 
-            <div class="overflow-x-auto" x-data="liveData()" x-init="init()">
+            <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead class="border-b-2 border-gray-200 dark:border-slate-700">
                         <tr>
@@ -125,7 +125,7 @@
         <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">⚓ الوسائل النشطة</h2>
 
-            <div x-data="liveData()" x-init="init()" class="space-y-2 max-h-96 overflow-y-auto">
+            <div class="space-y-2 max-h-96 overflow-y-auto">
                 <template x-for="vessel in activeVesselsList" :key="vessel.id">
                     <div class="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100 dark:from-slate-700 dark:to-slate-600 border-r-4 border-blue-500">
                         <p class="font-bold text-gray-900 dark:text-white text-sm" x-text="vessel.name"></p>
@@ -152,7 +152,7 @@
         <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">🚪 أكثر المخارج نشاطاً</h2>
 
-            <div x-data="liveData()" x-init="init()" class="space-y-3">
+            <div class="space-y-3">
                 <template x-for="exit in topExits" :key="exit.name">
                     <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded">
                         <span class="font-medium text-gray-900 dark:text-white" x-text="exit.name"></span>
@@ -170,7 +170,7 @@
         <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">📊 إحصائيات الساعة الأخيرة</h2>
 
-            <div x-data="liveData()" x-init="init()" class="space-y-4">
+            <div class="space-y-4">
                 <div class="p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-slate-700 dark:to-slate-600 rounded">
                     <div class="flex justify-between items-center">
                         <span class="text-gray-700 dark:text-gray-300 font-medium">🚀 خروجات</span>
@@ -198,7 +198,7 @@
 
 <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
-    function liveData() {
+    function liveDashboard() {
         return {
             activeVessels: 0,
             outsideVessels: 0,
@@ -208,11 +208,15 @@
             activeVesselsList: [],
             topExits: [],
             hourStats: { total: 0, exits: 0, entries: 0 },
+            notifications: [],
             pollingInterval: null,
+            movementPollingInterval: null,
 
             init() {
                 this.fetchData();
+                this.checkNewMovements();
                 this.pollingInterval = setInterval(() => this.fetchData(), 3000);
+                this.movementPollingInterval = setInterval(() => this.checkNewMovements(), 2000);
             },
 
             async fetchData() {
@@ -234,28 +238,12 @@
                 }
             },
 
-            destroy() {
-                clearInterval(this.pollingInterval);
-            }
-        }
-    }
-
-    function alerts() {
-        return {
-            notifications: [],
-            lastUpdate: 0,
-
-            init() {
-                setInterval(() => this.checkNewMovements(), 2000);
-            },
-
             async checkNewMovements() {
                 try {
                     const response = await fetch('{{ route("live-dashboard.movements") }}');
                     const data = await response.json();
 
                     if (data.movements && data.movements.length > 0) {
-                        // Add new notifications
                         data.movements.forEach(movement => {
                             this.notifications.unshift({
                                 id: movement.id,
@@ -265,13 +253,9 @@
                             });
                         });
 
-                        // Keep only recent
                         this.notifications = this.notifications.slice(0, 10);
-
-                        // Play sound
                         this.playNotificationSound();
 
-                        // Auto remove after 5 seconds
                         setTimeout(() => {
                             this.notifications = this.notifications.slice(data.movements.length);
                         }, 5000);
@@ -301,6 +285,11 @@
                 } catch (e) {
                     // Silently fail if audio context not available
                 }
+            },
+
+            destroy() {
+                clearInterval(this.pollingInterval);
+                clearInterval(this.movementPollingInterval);
             }
         }
     }
